@@ -241,7 +241,7 @@ def calc_score_roles(input_param=None, roles_weight=None, attrs_weight=None, att
 def ocr_item(input_param=None):
     reader = easyocr.Reader(['ch_sim'], gpu = False) # need to run only once to load model into memory
     result = reader.readtext(input_param["item_path"], detail = 0)
-    
+    print(result)
     return result
 
 # TEST
@@ -345,7 +345,7 @@ def parse_result(result):
                 item["minor_attr"]["小攻击"] = float(i_parse[1])
         elif i_parse[0] == "元素精通":
             item["minor_attr"]["精通"] = float(i_parse[1])
-        elif i_parse[0] == "元素充能效宰":
+        elif i_parse[0] == "元素充能效率":
             item["minor_attr"]["充能"] = float(i_parse[1][:-1])
         elif i_parse[0] == "暴击率":
             item["minor_attr"]["暴击"] = float(i_parse[1][:-1])
