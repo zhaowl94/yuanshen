@@ -1,0 +1,24 @@
+.coverage
+.hypothesis/
+.mypy_cache/
+.pytest_cache/
+.test-work/
+.ruff_cache/
+.uv-cache/
+.venv/
+.venv-py312/
+.wheel-check/
+.yuanshen-score/
+build/
+dist/
+htmlcov/
+*.egg-info/
+__pycache__/
+*.py[cod]
+
+# Local inputs, configuration, models, and generated output.
+config.local.toml
+calc_item_score/config.local.toml
+calc_item_score/input_param.json
+calc_item_score/item_*.png
+output/

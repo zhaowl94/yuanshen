@@ -1,0 +1,24 @@
+{
+  "schema_version": "2.0",
+  "artifact": {
+    "position": "sands",
+    "main_attribute": "atk_percent",
+    "level": 6,
+    "rarity": 5,
+    "substats": {
+      "flat_def": 16,
+      "energy_recharge": 5.2,
+      "crit_rate": 3.9,
+      "crit_damage": 6.2
+    },
+    "name": "合成示例"
+  },
+  "roles": [
+    "夜兰",
+    "胡桃",
+    "行秋"
+  ],
+  "ruleset": "legacy-v1",
+  "runs": 10000,
+  "target_level": 20
+}

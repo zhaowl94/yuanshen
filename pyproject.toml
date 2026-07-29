@@ -1,0 +1,107 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "yuanshen-score"
+version = "1.0.0"
+description = "A reproducible, compatibility-focused Genshin artifact scoring experiment."
+readme = "README.md"
+requires-python = ">=3.11,<3.13"
+license = "MIT"
+authors = [{ name = "zhaowl94" }]
+keywords = ["genshin", "artifact", "scoring", "ocr", "monte-carlo"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Operating System :: Microsoft :: Windows :: Windows 10",
+  "Operating System :: Microsoft :: Windows :: Windows 11",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Typing :: Typed",
+]
+dependencies = [
+  "pydantic>=2.8,<3",
+]
+
+[project.optional-dependencies]
+plot = [
+  "matplotlib>=3.8,<4",
+]
+ocr = [
+  "easyocr>=1.7.2,<2",
+]
+all = [
+  "easyocr>=1.7.2,<2",
+  "matplotlib>=3.8,<4",
+]
+dev = [
+  "build>=1.2,<2",
+  "hypothesis>=6.100,<7",
+  "matplotlib>=3.8,<4",
+  "mypy>=1.11,<2",
+  "pip-audit>=2.7,<3",
+  "pytest>=9.0.3,<10",
+  "pytest-cov>=5,<7",
+  "ruff>=0.8,<1",
+]
+
+[project.scripts]
+yuanshen-score = "yuanshen_score.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/zhaowl94/yuanshen"
+Issues = "https://github.com/zhaowl94/yuanshen/issues"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+yuanshen_score = ["py.typed", "data/legacy-v1/*.json"]
+
+[tool.pytest.ini_options]
+addopts = "--strict-config --strict-markers -p no:cacheprovider"
+testpaths = ["test"]
+markers = [
+  "real_ocr: downloads and runs a real EasyOCR model",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["yuanshen_score"]
+
+[tool.coverage.report]
+fail_under = 90
+show_missing = true
+skip_covered = true
+exclude_also = [
+  "if TYPE_CHECKING:",
+  "if __name__ == .__main__.:",
+  "raise NotImplementedError",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+ignore = ["RUF001"]
+
+[tool.ruff.lint.per-file-ignores]
+"test/**" = ["S101"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+packages = ["yuanshen_score"]
+mypy_path = ["src"]
+warn_unreachable = true
+
+[[tool.mypy.overrides]]
+module = ["easyocr"]
+ignore_missing_imports = true
