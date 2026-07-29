@@ -1,0 +1,17 @@
+{
+  "schema_version": "2.0",
+  "roles": [
+    "夜兰",
+    "胡桃"
+  ],
+  "ruleset": "legacy-v1",
+  "runs": 1000,
+  "target_level": 20,
+  "seed": 20260729,
+  "items": [
+    {
+      "id": "example-artifact",
+      "input": "artifact.v2.json"
+    }
+  ]
+}

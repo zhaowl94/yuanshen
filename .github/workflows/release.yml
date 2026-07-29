@@ -1,0 +1,30 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install uv and Python
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with:
+          python-version: "3.12"
+          enable-cache: true
+      - run: uv sync --locked --extra dev --extra plot
+      - run: >-
+          uv run --no-sync pytest -m "not real_ocr"
+          --cov=yuanshen_score --cov-branch --cov-report=term-missing
+      - run: uv build
+      - name: Create checksums
+        run: sha256sum dist/* > SHA256SUMS
+      - name: Create GitHub Release
+        run: gh release create "$GITHUB_REF_NAME" dist/* SHA256SUMS --generate-notes
+        env:
+          GH_TOKEN: ${{ github.token }}

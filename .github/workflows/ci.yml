@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "refactor/**"]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: ${{ matrix.os }} / Python ${{ matrix.python }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install uv and Python
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with:
+          python-version: ${{ matrix.python }}
+          enable-cache: true
+      - name: Install test environment
+        run: uv sync --locked --extra dev --extra plot
+      - name: Lint
+        run: uv run --no-sync ruff check src calc_item_score test
+      - name: Check formatting
+        run: uv run --no-sync ruff format --check src calc_item_score test
+      - name: Type check
+        run: uv run --no-sync mypy --python-version ${{ matrix.python }} src
+      - name: Test with branch coverage
+        run: >-
+          uv run --no-sync pytest -m "not real_ocr"
+          --cov=yuanshen_score --cov-branch --cov-report=term-missing
+
+  package:
+    name: Build and install package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install uv and Python
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with:
+          python-version: "3.12"
+          enable-cache: true
+      - run: uv sync --locked --extra dev
+      - run: uv build
+      - run: python -m venv .wheel-check
+      - run: .wheel-check/bin/python -m pip install dist/*.whl
+      - run: >-
+          .wheel-check/bin/yuanshen-score score examples/artifact.v2.json
+          --roles 夜兰
+      - name: Verify installed legacy fallback and optional isolation
+        run: >-
+          .wheel-check/bin/python -I -c
+          "import sys; from calc_item_score.calc_item_score import load_attrs_choice;
+          assert load_attrs_choice()['暴击'] == 75;
+          assert 'easyocr' not in sys.modules and 'matplotlib' not in sys.modules"
+
+  ocr-smoke:
+    name: Real EasyOCR CPU smoke test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install uv and Python
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with:
+          python-version: "3.11"
+          enable-cache: true
+      - run: uv sync --locked --extra dev --extra ocr
+      - name: Audit installed third-party dependencies
+        run: >-
+          uv run --no-sync pip-audit --local --skip-editable
+          --progress-spinner off
+      - run: >-
+          uv run --no-sync yuanshen-score models install easyocr-zh
+          --model-dir .yuanshen-score/models
+      - run: uv run --no-sync pytest -m real_ocr

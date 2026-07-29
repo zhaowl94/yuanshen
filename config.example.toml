@@ -1,0 +1,13 @@
+[paths]
+model_dir = ".yuanshen-score/models"
+output_dir = "output"
+# rules = "rules.local.json"
+
+[ocr]
+device = "cpu"
+confidence = 0.65
+languages = ["ch_sim", "en"]
+
+[simulation]
+runs = 10000
+target_level = 20
